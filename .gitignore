@@ -1,0 +1,7 @@
+# Gitignore
+
+# Ignore graphs generated
+*.png
+# Ignore cache data generated
+/Heat Transfer/P3 - radiación/data/*
+!/Heat Transfer/P3 - radiación/data/raw/
