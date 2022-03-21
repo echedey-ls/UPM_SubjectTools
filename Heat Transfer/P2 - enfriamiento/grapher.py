@@ -13,6 +13,7 @@ Abstract: Temperature evolution of a hot metal rod
 Sources:
 '''
 
+from os import mkdir
 from os.path import join, exists, getmtime
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
@@ -32,12 +33,20 @@ class dataVars:
     AmbTemp_K = AmbTemp_C + C2K_const
 
 def main():
+    if not exists(outputDataPath):
+        print('Output data filepath not found. Creating one...')
+        mkdir(outputDataPath)
+
     for (setName, dataFile) in dataFiles:
         print('Working on dataset '+setName)
+
         df = pd.read_csv(dataFile, sep=';', decimal=',', skiprows=4, names=['t', 'T'])
         df.insert(2, u'T₀', dataVars.AmbTemp_C)
         df.insert(3, u'ΔT', df['T'] - df['T₀'])
         df.insert(4, u'lnΔT', np.log(df[u'ΔT']))
+
+        df.to_csv(join(outputDataPath, 'Data'+setName.replace(' ', '')+'.csv'))
+        print('Data CSV created successfully.')
 
         plt.clf()
         # Superior title
@@ -91,7 +100,7 @@ def main():
         ax1.legend()
 
         plt.tight_layout()
-        plt.savefig('Graph'+setName.replace(' ', '')+'.png')
+        plt.savefig(join(outputDataPath, 'Graph'+setName.replace(' ', '')+'.png'))
     return
 
 if __name__ == '__main__':

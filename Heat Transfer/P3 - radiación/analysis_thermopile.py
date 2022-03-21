@@ -13,6 +13,7 @@ Abstract: Correlation of U(thermopile) with respect to Temperature, depending on
 Sources:
 '''
 
+from os import mkdir
 from os.path import join, exists, getmtime
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
@@ -40,6 +41,15 @@ class dataVars:
     AmbTemp_K = AmbTemp_C + C_to_K_const
 
 def main():
+    # Check that subfolders have been created
+    for path in (dataPath, rawDataPath, parsedDataPath, outputDataPath):
+        if not exists(path):
+            print(f'Path {path} not found. Creating it...')
+            mkdir(path)
+    for dataName, fileName in dataFiles:
+        if not exists( join(rawDataPath, fileName) ):
+            raise IOError(f'Data file {fileName} not found for dataset {dataName}')
+
     all_u_vs_temp = []
     with pd.ExcelWriter(outputDataFile) as writer:
         pd.DataFrame().to_excel(writer, sheet_name='Sheet', index=True)
