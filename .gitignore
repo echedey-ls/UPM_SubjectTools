@@ -3,5 +3,6 @@
 # Ignore graphs generated
 *.png
 # Ignore cache data generated
+/Heat Transfer/P2 - enfriamiento/out
 /Heat Transfer/P3 - radiación/data/*
 !/Heat Transfer/P3 - radiación/data/raw/
