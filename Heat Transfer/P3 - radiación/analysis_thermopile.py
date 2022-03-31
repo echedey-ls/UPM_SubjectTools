@@ -69,13 +69,13 @@ def main():
                     print(e)
             else:
                 print('\tFound cached file.')
-                readDf = pd.read_csv(parsedFile)
+                readDf = pd.read_csv(parsedFile, dtype= float)
                 readDf.drop(readDf.columns[0], axis=1, inplace=True)
             print('\tReading complete.')
-            #print(readDf)
+
+            customDf = generateCustomDf(readDf)
 
             # Merge pandas dataframes into different sheets of one excel sheet
-            customDf = generateCustomDf(readDf)
             if isFileNewer(outputDataFile, rawFile) or recomputeOverride:
                 print('\tData appended to final file.')
                 customDf.to_excel(writer, sheet_name=fileName, index=False)
@@ -119,7 +119,7 @@ def main():
                                   customDf.iloc[:,3],  # Diffs of fourth power of temps
                                   customDf.iloc[:,4])) # Voltage
         # end of For loop
-        #print(all_u_vs_temp)
+        
         plt.clf()
         outImgUvsTdiffs = join(outputDataPath, 'tempDiffsAndU.png')
         if any(map(isFileNewer, (outImgUvsTdiffs,)*3, [join(rawDataPath,dFile[1]) for dFile in dataFiles])):
@@ -127,6 +127,8 @@ def main():
             for data in all_u_vs_temp:
                 plt.plot(data[1], data[2])
             plt.legend([dFile[0] for dFile in all_u_vs_temp])
+            plt.xlabel(u'T\u2074 - Ta\u2074 (K\u2074)')
+            plt.ylabel(u'Tensión de la termopila (mV)')
             plt.tight_layout()
             plt.savefig( outImgUvsTdiffs )
             plt.show()
@@ -135,6 +137,7 @@ def main():
         
         # Regression lines
         for data in all_u_vs_temp:
+            print(data)
             lnregress = linregress(data[1], data[2])
             print('--> Stats of: '+data[0])
             print('\tSlope: '+str(lnregress.slope))
@@ -152,7 +155,7 @@ def readCustomInput(filePath):
                                 'TIME': [float(splittedLine[0].replace(',','.'))], 
                                 'TEMP': [float(splittedLine[1].replace(',','.'))], 
                                 'VOLT': [float(splittedLine[3].replace(',','.'))]
-                                })],
+                                }, dtype= float)],
                             ignore_index=True)
     return df
 
@@ -166,7 +169,7 @@ def generateCustomDf(dataframe):
                                u'T (K)': tempKelvin,
         u'T\u2074 - Ta\u2074 (K\u2074)': temp4sDiffs,
                               u'U (mV)': dataframe['VOLT']
-    } )
+    }, dtype= float ) # This dtype solves numbers being assigned object type when they are read from raw file
     return newDf
 
 def isFileNewer(reference, toCompare):
