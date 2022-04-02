@@ -8,7 +8,7 @@ Project: Data analysis of fluid mechanichs lab
 
 File: grapher.py
 
-Abstract: just another graph
+Abstract: just another graph script
 
 Sources:
 '''
