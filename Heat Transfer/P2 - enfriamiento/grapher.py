@@ -73,7 +73,7 @@ def main():
         ax1.plot(
             x,
             y,
-            label= 'ln(T - T₀)'
+            label= 'ln( T - T₀ )'
         )
         # Regression calc, print and plot
         regLine = linregress(x, y)
@@ -83,7 +83,7 @@ def main():
             f'  -> Standard deviation: {regLine.stderr}',
             sep= '\n'
         )
-        regLx = [x[0], x[-1]]
+        regLx = [min(x), max(x)]
         regLy = [
             regLine.slope * regLx[0]  + regLine.intercept,
             regLine.slope * regLx[-1] + regLine.intercept
@@ -96,7 +96,7 @@ def main():
             linestyle= 'dashed'
         )
         ax1.set_xlabel(u'Tiempo (t) [s]')
-        ax1.set_ylabel(u'Temperatura (T) [°C]')
+        ax1.set_ylabel(u'Logaritmo diferencia temperaturas')
         ax1.legend()
 
         plt.tight_layout()

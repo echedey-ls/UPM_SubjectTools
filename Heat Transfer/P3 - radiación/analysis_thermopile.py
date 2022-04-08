@@ -26,14 +26,15 @@ parsedDataPath = join(dataPath, 'parsed')
 outputDataPath = join(dataPath, 'out')
 
 dataFiles = [
-    ('Cara Negra','caraNegra.txt'), 
-    ('Cara Blanca','caraBlanca.txt'), 
-    ('Cara Brillante','caraBrillante.txt'), 
-    ('Cara Mate','caraMate.txt')
+    ('Cara Negra','caraNegra.txt', 'darkturquoise', 'blue'), 
+    ('Cara Blanca','caraBlanca.txt', 'gold', 'orangered'), 
+    ('Cara Brillante','caraBrillante.txt', 'lime', 'green'), 
+    ('Cara Mate','caraMate.txt', 'palevioletred', 'crimson')
 ]
 outputDataFile = join(outputDataPath, 'todasLasCaras.xlsx')
 
 recomputeOverride = False
+remakeGraphs      = True
 
 class dataVars:
     C_to_K_const = 273.15
@@ -46,14 +47,14 @@ def main():
         if not exists(path):
             print(f'Path {path} not found. Creating it...')
             mkdir(path)
-    for dataName, fileName in dataFiles:
+    for dataName, fileName, _, _ in dataFiles:
         if not exists( join(rawDataPath, fileName) ):
             raise IOError(f'Data file {fileName} not found for dataset {dataName}')
 
     all_u_vs_temp = []
     with pd.ExcelWriter(outputDataFile) as writer:
         pd.DataFrame().to_excel(writer, sheet_name='Sheet', index=True)
-        for dataName, fileName in dataFiles:
+        for dataName, fileName, color, regColor in dataFiles:
             print(f'Working on file {fileName}')
             rawFile    = join(rawDataPath, fileName)
             parsedFile = join(parsedDataPath, fileName+'.csv')
@@ -81,7 +82,7 @@ def main():
                 customDf.to_excel(writer, sheet_name=fileName, index=False)
 
             # Graphs output
-            if isFileNewer(graphFile, rawFile):
+            if isFileNewer(graphFile, rawFile) or remakeGraphs:
                 plt.clf()
                 plt.suptitle(dataName)
 
@@ -90,21 +91,27 @@ def main():
                 axs2 = plt.subplot(2,1,2)
                 
                 axs0.plot(customDf.iloc[:,0], # Time
-                          customDf.iloc[:,2]) # Temperature
+                          customDf.iloc[:,2], # Temperature
+                          color= color
+                )
                 axs0.set_title('Temperatura respecto el tiempo')
                 axs0.set_xlabel('t (s)')
                 axs0.set_ylabel('T (K)')
                 axs0.grid(visible=True, which='major', axis='both')
 
                 axs1.plot(customDf.iloc[:,0], # Time
-                          customDf.iloc[:,4]) # Voltage
+                          customDf.iloc[:,4], # Voltage
+                          color= color
+                )
                 axs1.set_title('Tensión respecto al tiempo')
                 axs1.set_xlabel('t (s)')
                 axs1.set_ylabel('U (V)')
                 axs1.grid(visible=True, which='major', axis='both')
 
                 axs2.plot(customDf.iloc[:,2], # Temperature
-                          customDf.iloc[:,4]) # Voltage
+                          customDf.iloc[:,4], # Voltage
+                          color= color
+                )
                 axs2.set_title('Tensión respecto temperatura')
                 axs2.set_xlabel('T (K)')
                 axs2.set_ylabel('U (V)')
@@ -115,18 +122,49 @@ def main():
                 print('\tGraphs saved.')
             else:
                 print('No changes from last execution - new graphs haven\'t been generated')
-            all_u_vs_temp.append((dataName,
-                                  customDf.iloc[:,3],  # Diffs of fourth power of temps
-                                  customDf.iloc[:,4])) # Voltage
+            all_u_vs_temp.append( (
+                dataName,
+                customDf.iloc[:,3], # Diffs of fourth power of temps
+                customDf.iloc[:,4], # Voltage
+                color,
+                regColor
+                )
+            )
         # end of For loop
         
         plt.clf()
         outImgUvsTdiffs = join(outputDataPath, 'tempDiffsAndU.png')
         if any(map(isFileNewer, (outImgUvsTdiffs,)*3, [join(rawDataPath,dFile[1]) for dFile in dataFiles])):
             plt.suptitle(u'Relación voltaje vs '+u'T\u2074 - Ta\u2074 (K\u2074)')
-            for data in all_u_vs_temp:
-                plt.plot(data[1], data[2])
-            plt.legend([dFile[0] for dFile in all_u_vs_temp])
+            for dataName, x, y, color, regColor in all_u_vs_temp:
+                plt.plot(
+                    x, 
+                    y,
+                    color= color,
+                    label= dataName
+                )
+                regLine = linregress(x, y)
+                print(
+                    f'Line regression of '+dataName,
+                    f'  -> Slope: {regLine.slope} ',
+                    f'  -> Standard deviation: {regLine.stderr}',
+                    sep= '\n'
+                )
+                regLx = [min(x), max(x)]
+                regLy = [
+                    regLine.slope * regLx[0]  + regLine.intercept,
+                    regLine.slope * regLx[-1] + regLine.intercept
+                ]
+                plt.plot(
+                    regLx,
+                    regLy,
+                    label= 'Ajuste '+dataName,
+                    color= regColor,
+                    linestyle= 'dashed'
+                )
+
+            
+            plt.legend()
             plt.xlabel(u'T\u2074 - Ta\u2074 (K\u2074)')
             plt.ylabel(u'Tensión de la termopila (mV)')
             plt.tight_layout()
@@ -134,14 +172,6 @@ def main():
             plt.show()
         else:
             print('Last graph was already generated. Skipping...')
-        
-        # Regression lines
-        for data in all_u_vs_temp:
-            print(data)
-            lnregress = linregress(data[1], data[2])
-            print('--> Stats of: '+data[0])
-            print('\tSlope: '+str(lnregress.slope))
-            print('\tStderror: '+str(lnregress.stderr))
 
 def readCustomInput(filePath):
     df = pd.DataFrame( columns=['TIME', 'TEMP', 'VOLT'] )
@@ -173,10 +203,7 @@ def generateCustomDf(dataframe):
     return newDf
 
 def isFileNewer(reference, toCompare):
-    if getmtime(toCompare) > getmtime(reference):
-        return True
-    else:
-        return False
+    return getmtime(toCompare) > getmtime(reference)
 
 if __name__ == '__main__':
     main()
