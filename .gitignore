@@ -6,3 +6,4 @@
 /Heat Transfer/P2 - enfriamiento/out
 /Heat Transfer/P3 - radiación/data/*
 !/Heat Transfer/P3 - radiación/data/raw/
+*.pickle

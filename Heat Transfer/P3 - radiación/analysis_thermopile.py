@@ -28,8 +28,8 @@ outputDataPath = join(dataPath, 'out')
 dataFiles = [
     ('Cara Negra','caraNegra.txt', 'darkturquoise', 'blue'), 
     ('Cara Blanca','caraBlanca.txt', 'gold', 'orangered'), 
-    ('Cara Brillante','caraBrillante.txt', 'lime', 'green'), 
-    ('Cara Mate','caraMate.txt', 'palevioletred', 'crimson')
+    ('Cara Mate','caraMate.txt', 'palevioletred', 'crimson'), 
+    ('Cara Brillante','caraBrillante.txt', 'lime', 'green')
 ]
 outputDataFile = join(outputDataPath, 'todasLasCaras.xlsx')
 
@@ -42,18 +42,23 @@ class dataVars:
     AmbTemp_K = AmbTemp_C + C_to_K_const
 
 def main():
+    # Check that datasets are present
+    for dataName, fileName, _, _ in dataFiles:
+        if not exists( join(rawDataPath, fileName) ):
+            raise IOError(f'Data file {fileName} not found for dataset {dataName}')
+
     # Check that subfolders have been created
     for path in (dataPath, rawDataPath, parsedDataPath, outputDataPath):
         if not exists(path):
             print(f'Path {path} not found. Creating it...')
             mkdir(path)
-    for dataName, fileName, _, _ in dataFiles:
-        if not exists( join(rawDataPath, fileName) ):
-            raise IOError(f'Data file {fileName} not found for dataset {dataName}')
 
     all_u_vs_temp = []
     with pd.ExcelWriter(outputDataFile) as writer:
-        pd.DataFrame().to_excel(writer, sheet_name='Sheet', index=True)
+        if not exists(outputDataFile):
+            # Creamos hoja vacía para que no de problemas
+            pd.DataFrame().to_excel(writer, sheet_name='Blank', index=True)
+
         for dataName, fileName, color, regColor in dataFiles:
             print(f'Working on file {fileName}')
             rawFile    = join(rawDataPath, fileName)
@@ -134,8 +139,8 @@ def main():
         
         plt.clf()
         outImgUvsTdiffs = join(outputDataPath, 'tempDiffsAndU.png')
-        if any(map(isFileNewer, (outImgUvsTdiffs,)*3, [join(rawDataPath,dFile[1]) for dFile in dataFiles])):
-            plt.suptitle(u'Relación voltaje vs '+u'T\u2074 - Ta\u2074 (K\u2074)')
+        if any(map(isFileNewer, (outImgUvsTdiffs,)*3, [join(rawDataPath,dFile[1]) for dFile in dataFiles])) or remakeGraphs:
+            plt.suptitle(u'Relación voltaje vs '+u'T\u2074 - Ta\u2074')
             for dataName, x, y, color, regColor in all_u_vs_temp:
                 plt.plot(
                     x, 
