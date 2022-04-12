@@ -8,12 +8,12 @@ Project: Data analysis of fluid mechanichs lab
 
 File: grapher.py
 
-Abstract: just another graph x2
+Abstract: just another graphing script x2
 
 Sources:
 '''
 
-from os.path import getmtime, join, exists
+from os.path import getmtime
 from scipy.stats import linregress
 from math import sqrt
 import matplotlib.pyplot as plt
