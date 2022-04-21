@@ -14,7 +14,7 @@ Sources:
 '''
 
 from os import mkdir
-from os.path import join, exists, getmtime
+from os.path import join, exists
 from scipy.stats import linregress
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,7 +29,7 @@ dataFiles = (
 
 class dataVars:
     C2K_const = 273.15
-    AmbTemp_C = 18.4
+    AmbTemp_C = 17.6
     AmbTemp_K = AmbTemp_C + C2K_const
 
 def main():
@@ -40,12 +40,12 @@ def main():
     for (setName, dataFile) in dataFiles:
         print('Working on dataset '+setName)
 
-        df = pd.read_csv(dataFile, sep=';', decimal=',', skiprows=4, names=['t', 'T'])
+        df = pd.read_csv(dataFile, sep=';', decimal=',', skiprows=4, names=['t', 'T'], usecols= [0, 1])
         df.insert(2, u'T₀', dataVars.AmbTemp_C)
         df.insert(3, u'ΔT', df['T'] - df['T₀'])
         df.insert(4, u'lnΔT', np.log(df[u'ΔT']))
 
-        df.to_csv(join(outputDataPath, 'Data'+setName.replace(' ', '')+'.csv'))
+        df.to_csv(join(outputDataPath, 'Data_'+dataFile[:-4]+'.csv'))
         print('Data CSV created successfully.')
 
         plt.clf()
@@ -100,7 +100,7 @@ def main():
         ax1.legend()
 
         plt.tight_layout()
-        plt.savefig(join(outputDataPath, 'Graph'+setName.replace(' ', '')+'.png'))
+        plt.savefig(join(outputDataPath, 'Graph'+dataFile[:-4]+'.png'))
     return
 
 if __name__ == '__main__':
