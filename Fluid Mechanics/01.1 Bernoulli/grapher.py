@@ -13,9 +13,9 @@ Abstract: just another graph
 Sources:
 '''
 
+from cProfile import label
 from os import mkdir
-from os.path import getmtime, join, exists
-from scipy.stats import linregress
+from os.path import join, exists
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -40,42 +40,42 @@ def main():
         # Subtitle
         plt.title(u'Alturas características en función del diámetro del tubo', **{'fontsize': 'medium'})
         
-        plt.xlabel(u'Diámetro del tubo de Venturi (d) [mm]')
-        plt.ylabel(u'Alturas (h\u2096) [mm]')
+        plt.xlabel(r'Diámetro del tubo de Venturi $d \; [mm]$')
+        plt.ylabel(r'Alturas $h_k \; [mm]$')
         plt.grid(which='major', axis='both')
 
         legend = []
 
         # Altura presión (medida)
-        legend.append(u'Altura presión (medida)')
         plt.plot(
             df[1].iloc[:,0],
             df[1].iloc[:,5],
-            c= 'tomato'
+            c= 'tomato',
+            label= 'Altura presión (medida)'
         )
 
         # Altura cinética (calculada)
-        legend.append(u'Altura cinética (calculada)')
         plt.plot(
             df[1].iloc[:,0],
             df[1].iloc[:,4],
-            c= 'hotpink'
+            c= 'hotpink',
+            label= 'Altura cinética (calculada)'
         )
 
         # Altura de Pitot (medida)
-        legend.append(u'Altura de Pitot (medida)')
         plt.plot(
             df[1].iloc[:,0],
             df[1].iloc[:,7],
-            c= 'crimson'
+            c= 'crimson',
+            label= 'Altura de Pitot (medida)'
         )
 
         # Altura promedio de carga (calculada)
-        legend.append(u'Altura promedio de carga (calculada)')
         plt.plot(
             df[1].iloc[:,0],
             df[1].iloc[:,6],
-            c= 'mediumspringgreen'
+            c= 'mediumspringgreen',
+            label= 'Altura promedio de carga (calculada)'
         )
 
         # Reverse x axis and draw arrow
@@ -84,15 +84,15 @@ def main():
             'head_width' : 10,
             'head_length': 2,
             'color'      : 'turquoise',
+            'label'      : 'Flujo hidráulico'
         }
-        legend.append('Flujo hidráulico')
-        if df[2]:
+        if df[0] == 'convergente':
             plt.gca().invert_xaxis()
             plt.arrow(25, -5, -13, 0, **arrowStyle)
         else:
             plt.arrow(10, -5, +13, 0, **arrowStyle)
 
-        plt.legend(legend)
+        plt.legend()
 
         if not exists(outputPath):
             mkdir(outputPath)

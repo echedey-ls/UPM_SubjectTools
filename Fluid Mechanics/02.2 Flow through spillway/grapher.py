@@ -16,7 +16,6 @@ Sources:
 from os import mkdir
 from os.path import exists, getmtime, join
 from math import pi, sqrt, tan
-from numpy import linspace
 from scipy.stats import linregress
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
