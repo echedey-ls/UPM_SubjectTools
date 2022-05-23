@@ -13,8 +13,8 @@ Abstract: just another graph script
 Sources:
 '''
 
-from os.path import getmtime, join, exists
-from scipy.stats import linregress
+from os.path import getmtime, join
+from numpy import poly1d, linspace, polyfit
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -23,6 +23,8 @@ outputPath = 'out'
 
 dataFile   = join(dataPath, 'Lab1.xlsx')
 figureFile = join(outputPath, 'Figure_1.png')
+
+quadEc = lambda x, a, b, c: a+x**2 + b*x + c
 
 def main():
     df0 = pd.read_excel(dataFile, sheet_name= u'Práctica 2', usecols= 'B:F', skiprows= 10, nrows= 5)
@@ -40,24 +42,28 @@ def main():
         x,
         y,
         c= 'r',
-        marker= 'o'
+        marker= 'o',
+        label= u'Fuerza medida (G) α=90°'
     )
-    # G regression line
-    regLine = linregress(x, y)
-    regLx = [x[0], x[-1]]
-    regLy = [regLine.slope * regLx[0] + regLine.intercept, regLine.slope * regLx[-1] + regLine.intercept]
+    # Regression G vs Q
+    model = poly1d(polyfit(x, y, 2))
+    regLx = linspace(min(x), max(x), 50)
+    regLy = model(regLx)
     plt.plot(
         regLx,
         regLy,
-        color= 'r',
-        linestyle= 'dashed'
+        c= 'r',
+        linestyle= 'dashed',
+        label= u'Tendencia fuerza medida (G) α=90°'
     )
+
     # F vs Q
     plt.plot(
         df0.iloc[:,1], # Q
         df0.iloc[:,3], # F
         color= 'r',
-        linestyle= 'solid'
+        linestyle= 'solid',
+        label= u'Fuerza estimada (F) α=90°'
     )
     
     # Alpha = 120
@@ -68,24 +74,28 @@ def main():
         x,
         y,
         c= 'g',
-        marker= 'o'
+        marker= 'o',
+        label= u'Fuerza medida (G) α=120°'
     )
-    # G regression line
-    regLine = linregress(x, y)
-    regLx = [x[0], x[-1]]
-    regLy = [regLine.slope * regLx[0] + regLine.intercept, regLine.slope * regLx[-1] + regLine.intercept]
+    # Regression G vs Q
+    model = poly1d(polyfit(x, y, 2))
+    regLx = linspace(min(x), max(x), 50)
+    regLy = model(regLx)
     plt.plot(
         regLx,
         regLy,
-        color= 'g',
-        linestyle= 'dashed'
+        c= 'g',
+        linestyle= 'dashed',
+        label= u'Tendencia fuerza medida (G) α=120°'
     )
+
     # F vs Q
     plt.plot(
         df1.iloc[:,1], # Q
         df1.iloc[:,3], # F
         color= 'g',
-        linestyle= 'solid'
+        linestyle= 'solid',
+        label= u'Fuerza estimada (F) α=120°'
     )
 
     # Alpha = 180
@@ -98,36 +108,29 @@ def main():
         c= 'b',
         marker= 'o'
     )
-    # G regression line
-    regLine = linregress(x, y)
-    regLx = [x[0], x[-1]]
-    regLy = [regLine.slope * regLx[0] + regLine.intercept, regLine.slope * regLx[-1] + regLine.intercept]
+    # Regression G vs Q
+    model = poly1d(polyfit(x, y, 2))
+    regLx = linspace(min(x), max(x), 50)
+    regLy = model(regLx)
     plt.plot(
         regLx,
         regLy,
-        color= 'b',
-        linestyle= 'dashed'
+        c= 'b',
+        linestyle= 'dashed',
+        label= u'Tendencia fuerza medida (G) α=180°'
     )
+
     # F vs Q
     plt.plot(
         df2.iloc[:,1], # Q
         df2.iloc[:,3], # F
         color= 'b',
-        linestyle= 'solid'
+        linestyle= 'solid',
+        label= u'Fuerza medida (G) α=180°'
     )
 
     plt.grid(visible=True, which='major', axis='both')
-    plt.legend([
-        u'Fuerza medida (G) α=90°',
-        u'Tendencia fuerza medida (G) α=90°',
-        u'Fuerza estimada (F) α=90°',
-        u'Fuerza medida (G) α=120°',
-        u'Tendencia fuerza medida (G) α=120°',
-        u'Fuerza estimada (F) α=120°',
-        u'Fuerza medida (G) α=180°',
-        u'Tendencia fuerza medida (G) α=180°',
-        u'Fuerza estimada (F) α=180°'
-    ])
+    plt.legend()
     plt.xlabel(u'Caudal, Q [m³/s]')
     plt.ylabel(u'Fuerzas, (F, G) [N]')
 
@@ -136,12 +139,6 @@ def main():
     plt.show()
 
     pass
-
-def isFileNewer(reference, toCompare):
-    if getmtime(toCompare) > getmtime(reference):
-        return True
-    else:
-        return False
 
 if __name__ == '__main__':
     main()
