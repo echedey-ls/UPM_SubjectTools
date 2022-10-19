@@ -131,11 +131,12 @@ def valveLosses(plotEnv):
 
 if __name__ == '__main__':
     # Initialize matplotlib styles
-    plt.style.use(['latex-sans','science','grid','std-colors'])
+    plt.style.use(['latex-sans','science','ieee','grid','std-colors'])
     plt.rcParams.update({
-        'figure.dpi': '125',
+        'figure.dpi': '150',
         'figure.figsize': '8, 5'
     })
-    #lossesCharts(plt)
+
+    lossesCharts(plt)
     valveLosses(plt)
     print('Data was analyzed successfully. Have a nice day.')
