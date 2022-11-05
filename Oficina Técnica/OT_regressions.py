@@ -37,9 +37,10 @@ def main():
     # Meses menor demanda
     x = np.arange(0,6)
     y = y_ene_jun
-
+    # Barras de demandas
     ax.bar(x_months[:6], y, edgecolor="k",
            label='Demanda: meses de menor demanda')
+    # Regresión
     regLine = linregress(x, y)
     regLx = [min(x), max(x)]
     regLy = [regLine.slope * regLx[0] + regLine.intercept, regLine.slope * regLx[-1] + regLine.intercept]
@@ -52,13 +53,24 @@ def main():
         linewidth = '5',
         label= 'Regresión lineal: meses de menor demanda'
     )
+    # Previsiones: Baja demanda
+    regLy = [regLine.slope * 6 + regLine.intercept, regLine.slope * 11 + regLine.intercept]
+    plt.plot(
+        regLx,
+        regLy,
+        color= 'indigo',
+        linestyle= 'dashed',
+        linewidth = '5',
+        label= 'Extrapolación siguiente año: alta demanda'
+    )
 
     # Meses de mayor demanda
     x = np.arange(6,12)
     y = y_jul_dic
-
+    # Barras de demanda
     ax.bar(x_months[6:], y, edgecolor="k",
            label='Demanda: meses de mayor demanda')
+    # Regresión
     regLine = linregress(x, y)
     regLx = [min(x), max(x)]
     regLy = [regLine.slope * regLx[0] + regLine.intercept, regLine.slope * regLx[-1] + regLine.intercept]
@@ -71,6 +83,17 @@ def main():
         linewidth = '5',
         label= 'Regresión lineal: meses de mayor demanda'
     )
+    # Previsiones: Alta demanda
+    regLy = [regLine.slope * 12 + regLine.intercept, regLine.slope * 17 + regLine.intercept]
+    plt.plot(
+        regLx,
+        regLy,
+        color= 'deeppink',
+        linestyle= 'dashed',
+        linewidth = '5',
+        label= 'Extrapolación siguiente año: alta demanda'
+    )
+
 
     ax.set_xticks(np.arange(0,12))
     ax.set_xticklabels(x_months)
