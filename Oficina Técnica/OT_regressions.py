@@ -16,7 +16,7 @@ Sources:
 import numpy as np
 import matplotlib.pyplot as plt
 import mplcyberpunk
-import SciencePlots # Using my distribution, needs import
+import scienceplots
 from scipy.stats import linregress
 
 def main():

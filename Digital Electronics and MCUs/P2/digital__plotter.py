@@ -16,7 +16,7 @@ Sources:
 import matplotlib.pyplot as plt
 import pandas as pd
 import mplcyberpunk
-import SciencePlots # Using my distribution, needs import
+import scienceplots
 
 dataFiles = (
     ('TTL' , 'data-TTL.csv'),
@@ -41,7 +41,7 @@ def main():
 
         #plt.tight_layout()
         plt.savefig(title+'.png')
-        #plt.show()
+        plt.show()
     return
 
 if __name__ == '__main__':
