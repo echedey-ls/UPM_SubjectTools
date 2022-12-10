@@ -6,9 +6,9 @@ Author: Echedey Luis Álvarez
 Date: 05/11/2022
 Project: Technical Office graphs
 
-File: OT_regressions.py
+File: Ej05.py
 
-Abstract: just another grapher
+Abstract: Práctica 05, gráficas y regresiones, lo que toque
 
 Sources:
 '''
